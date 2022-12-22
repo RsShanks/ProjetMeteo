@@ -51,7 +51,7 @@ ZONE=0
 
 #fonction qui permet de gerer les paramètres que l'on veut en entrée
 
-PARSED_ARGUMENTS=$(getopt -a -n parametre -o t:hp:wFAQGSOf:o: -- "$@")
+PARSED_ARGUMENTS=$(getopt -a -n parametre -o t:hp:wmFAQGSOf:o: -- "$@")
 
 #si la fonction précédentes retourne autre chose que 0 alors il 
 
@@ -63,7 +63,7 @@ fi
 #tant que l'on a pas fait passer tous les arguments dans le case on boucle jusqu'au '--' qui est le dernier élément
 
 echo "les arguments sont : $PARSED_ARGUMENTS"
-while getopts t:hp:wFAQGSOf:o: name
+while getopts t:hp:wmFAQGSOf:o: name
 do
     case "${name}" in
        t)   if [[ $OPTARG = 1 ]]; then      #on teste quel mode est choisi
@@ -75,7 +75,8 @@ do
             else 
                 echo "mauvais mode activer pour la temperature">&2 >>erreur.txt
             fi ;;                                                             
-       h)   HUMIDITE=1;; 
+       h)   ALTITUDE=1;;
+       m)   HUMIDITE=1;; 
        p)   if [[ $OPTARG = 1 ]]; then 
                 PRESSION=1
             elif [[ $OPTARG = 2 ]]; then 
@@ -145,6 +146,9 @@ elif [[ $TEMPERATURE -eq 2 ]]; then #temperature mode 2
     echo "Tmode2"
 elif [[ $TEMPERATURE -eq 3 ]]; then #temperature mode 3
     echo "Tmode3"
+fi
+if [[ $ALTITUDE -eq 1 ]]; then 
+    echo "Altitude"
 fi
 if [[ $HUMIDITE -eq 1 ]]; then 
     echo "Humidite"
