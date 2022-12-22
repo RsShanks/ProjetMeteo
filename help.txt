@@ -1,0 +1,14 @@
+./script_meteo [parametre] [Zone] -f [fichier.csv] -o [fichier de sortie.csv]
+
+Autant de parametre que vous voulez.
+      : parametre [ -t | --temperature ][1,2,3]
+                  [ -h | --humidite ]
+                  [ -p | --pression ][1,2,3] 
+                  [ -w | --vent ] 
+       0 ou 1 Zone.
+      : Zone [ -F (France) ]
+             [ -G (Guyane) ]
+             [ -A (Antilles) ]
+             [ -S (Saint-Pierre et Miquelon) ] 
+             [ -Q (Antartiques et Terres Australes) ]
+             [ -O (Océan Indien) ]
