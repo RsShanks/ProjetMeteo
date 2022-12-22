@@ -1,10 +1,19 @@
 ./script_meteo [parametre] [Zone] -f [fichier.csv] -o [fichier de sortie.csv]
 
 Autant de parametre que vous voulez.
-      : parametre [ -t | --temperature ][1,2,3]
-                  [ -h | --humidite ]
-                  [ -p | --pression ][1,2,3] 
-                  [ -w | --vent ] 
+      : parametre [ -t<1,2,3> ] temperature
+                  [ -m ] humidité
+                  [ -h ] altitude 
+                  [ -p<1,2,3> ] pression
+                  [ -w ] vent
+
+1 : produit en sortie les températures (ou pressions) minimales, maximales et moyennes par station dans l’ordre
+croissant du numéro de station.
+2 : produit en sortie les températures (ou pressions) moyennes par date/heure, triées dans l’ordre chronologique.
+La moyenne se fait sur toutes les stations.
+3 : produit en sortie les températures (ou pressions) par date/heure par station. Elles seront triées d’abord par ordre
+chronologique, puis par ordre croissant de l’identifiant de lastation
+                  
        0 ou 1 Zone.
       : Zone [ -F (France) ]
              [ -G (Guyane) ]
