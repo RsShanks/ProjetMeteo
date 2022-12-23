@@ -45,13 +45,14 @@ for (( i=0; i <= $#-2; i++ )); do
     done
 done
 
-#initialisations des varialbes 
+#initialisations des variables 
 
+sortie=out.csv
 ZONE=0
 
 #fonction qui permet de gerer les paramètres que l'on veut en entrée
 
-PARSED_ARGUMENTS=$(getopt -a -n parametre -o t:hp:wmFAQGSOf:o: -- "$@")
+PARSED_ARGUMENTS=$(getopt -a -n parametre -o t:hp:wmFAQGSOf: -- "$@")
 
 #si la fonction précédentes retourne autre chose que 0 alors il 
 
@@ -63,7 +64,7 @@ fi
 #tant que l'on a pas fait passer tous les arguments dans le case on boucle jusqu'au '--' qui est le dernier élément
 
 echo "les arguments sont : $PARSED_ARGUMENTS"
-while getopts t:hp:wmFAQGSOf:o: name
+while getopts t:hp:wmFAQGSOf: name
 do
     case "${name}" in
        t)   if [[ $OPTARG = 1 ]]; then      #on teste quel mode est choisi
@@ -99,18 +100,11 @@ do
             zone=Q;;
        O)   ZONE=$((1+$ZONE))
             zone=O;;
-       f)   if [ ${OPTARG##*.} != csv ]; then #on regarde si on a bien un fichier .csv en entrée
+       f)   if [[ "$OPTARG" != *.csv ]]; then #on regarde si on a bien un fichier .csv en entrée
                 echo "mauvais format de fichier .csv requis en entrée">&2 >> erreur.txt
                 usage
             fi                              
             tab=$OPTARG;;       #tab est le tableau d'entrée du programme
-       o)   
-            if [ ${OPTARG##*.} != csv ]; then #on regarde si on a bien un fichier .csv en sortie    
-                echo "mauvais format de fichier .csv requis en sortie">&2 >> erreur.txt
-                rm $OPTARG
-                usage
-            fi  
-            sortie=$OPTARG;;     #sortie est le tableau d'entrée du programme 
        --)  break;;
     esac
 done
@@ -129,39 +123,46 @@ if [[ $tab != *.csv ]]; then
     usage
 fi    
 
-#test si un fichier de sortie a bien été indiqué
-
-if [[ $sortie != *.csv ]]; then 
-    echo "nécessite un fichier de sortie">&2 >> erreur.txt
-    usage
-fi 
-
 #Ce que fait le programme en fonction des arguments 
 
-touch $sortie        #on crée le fichier de sortie
-
 if [[ $TEMPERATURE -eq 1 ]]; then #temperature mode 1
-    echo "Tmode1"
+    cut -d ";" -f1,11,12,13 $tab > $sortie  #trier en fonction du numeros de station (colonne 1)
+                                    
+                                    
 elif [[ $TEMPERATURE -eq 2 ]]; then #temperature mode 2
-    echo "Tmode2"
+    cut -d ";" -f1,2,11 $tab > $sortie    #trier en fonction de la date (colonne 2)
+
+
 elif [[ $TEMPERATURE -eq 3 ]]; then #temperature mode 3
-    echo "Tmode3"
+    cut -d ";" -f1,2,11 $tab > $sortie    #trier en fonction de la date (colonne 2) puis en fonction du numéros de la station (colonne 1)
+
+
 fi
 if [[ $ALTITUDE -eq 1 ]]; then 
-    echo "Altitude"
+    cut -d ";" -f1,14 $tab > $sortie    #trier en fonction de l'altitude par ordre décroissant (colonne 14)
+
+
 fi
 if [[ $HUMIDITE -eq 1 ]]; then 
-    echo "Humidite"
+    cut -d ";" -f1,6 $tab > $sortie    #trier en fonction de l'humidité par ordre décroissant (colonne 6)
+
+
 fi
 if [[ $PRESSION -eq 1 ]]; then #pression mode 1
-    echo "Pmode1"
+    cut -d ";" -f1,7 $tab > $sortie  #trier en fonction du numeros de station (colonne 1)
+
+    
 elif [[ $PRESSION -eq 2 ]]; then #pression mode 2
-    echo "Pmode2"
+    cut -d ";" -f1,2,7 $tab > $sortie    #trier en fonction de la date (colonne 2)
+
+
 elif [[ $PRESSION -eq 3 ]]; then #pression mode 3
-    echo "Pmode3"
+    cut -d ";" -f1,2,7 $tab > $sortie    #trier en fonction de la date (colonne 2) puis en fonction du numéros de la station (colonne 1)
+
+
 fi
 if [[ $VENT -eq 1 ]]; then 
-    echo "vent"
+    cut -d ";" -f1,4,5 $tab > $sortie   #trouver laxe x et y et faire une moyenne pour la direction trier en fonction de la station (colonne 1)
 fi
 if [[ $zone = F ]]; then 
     echo "france"
@@ -182,5 +183,4 @@ if [[ $zone = O ]]; then
     echo "Ocean Indien"
 fi
 
-rm $sortie
 
