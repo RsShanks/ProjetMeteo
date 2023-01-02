@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#on elimine les fichiers residuels du dernier lancement
+
+#rm Paramètre/*
+
 #on élimine notre fichier erreur en début de programme
 
 if [ -e erreur.txt ]; then
@@ -49,36 +53,57 @@ done
 
 sortie=out.csv
 ZONE=0
-
-#fonction qui permet de gerer les paramètres que l'on veut en entrée
-
-PARSED_ARGUMENTS=$(getopt -a -n parametre -o t:hp:wmFAQGSOf: -- "$@")
-
-#si la fonction précédentes retourne autre chose que 0 alors il 
-
-if [ $? != 0 ]; then 
-    echo "Option inconnu: $1." >&2 >> erreur.txt
-    usage
-fi
+TEMPERATURE=0
+PRESSION=0
+VENT=0
+HUMIDITE=0
+ALTITUDE=0
+parametre=0             #le nombre de parametre
+mode_tri="avl"
+p=0
 
 #tant que l'on a pas fait passer tous les arguments dans le case on boucle jusqu'au '--' qui est le dernier élément
 
-echo "les arguments sont : $PARSED_ARGUMENTS"
-while getopts t:hp:wmFAQGSOf: name
+while getopts t:hp:wmFAQGSOf:-: name
 do
-    case "${name}" in
-       t)   if [[ $OPTARG = 1 ]]; then      #on teste quel mode est choisi
+    p=$((p+1))
+    if [[ ${name} = "-" ]]      #on dit que - est une option qui a pour parametre avl
+    then
+        case "${OPTARG%%=*}" in
+        avl );;
+        abr )   mode_tri="abr"
+        ;;
+        tab )   mode_tri="tab"
+        ;;
+        * )
+            echo "option longue n'existe pas --${OPTARG%%=*}">&2 >> erreur.txt
+            usage
+        ;;
+        esac
+    else 
+        case "${name}" in
+        t)  parametre=1
+            if [[ $TEMPERATURE != 0 ]];then 
+                echo "il ne peut y avoir qu'un mode de temperature à la fois">&2 >> erreur.txt
+                usage
+            elif [[ $OPTARG = 1 ]]; then      #on teste quel mode est choisi
                 TEMPERATURE=1
             elif [[ $OPTARG = 2 ]]; then 
                 TEMPERATURE=2
             elif [[ $OPTARG = 3 ]]; then 
                 TEMPERATURE=3
             else 
-                echo "mauvais mode activer pour la temperature">&2 >>erreur.txt
-            fi ;;                                                             
-       h)   ALTITUDE=1;;
-       m)   HUMIDITE=1;; 
-       p)   if [[ $OPTARG = 1 ]]; then 
+                    echo "mauvais mode activer pour la temperature">&2 >> erreur.txt
+            fi ;;                                                        
+        h)  parametre=1
+            ALTITUDE=1;;
+        m)  parametre=1
+            HUMIDITE=1;; 
+        p)  parametre=1
+            if [[ $PRESSION != 0 ]];then 
+                echo "il ne peut y avoir qu'un mode de temperature à la fois">&2 >> erreur.txt
+                usage
+            elif [[ $OPTARG = 1 ]]; then 
                 PRESSION=1
             elif [[ $OPTARG = 2 ]]; then 
                 PRESSION=2
@@ -87,100 +112,130 @@ do
             else 
                 echo "mauvais mode activer pour la pression">&2 >>erreur.txt
             fi;;
-       w)   VENT=1;;
-       F)   ZONE=$((1+$ZONE))   #la variable compte combien de zone sont dans les arguments
-            zone=F;; 
-       G)   ZONE=$((1+$ZONE)) 
-            zone=G;;
-       A)   ZONE=$((1+$ZONE))
-            zone=A;;
-       S)   ZONE=$((1+$ZONE))
-            zone=S;;
-       Q)   ZONE=$((1+$ZONE))
-            zone=Q;;
-       O)   ZONE=$((1+$ZONE))
-            zone=O;;
-       f)   if [[ "$OPTARG" != *.csv ]]; then #on regarde si on a bien un fichier .csv en entrée
-                echo "mauvais format de fichier .csv requis en entrée">&2 >> erreur.txt
+        w)   parametre=1
+                VENT=1;;
+        F)   ZONE=$((1+$ZONE))   #la variable compte combien de zone sont dans les arguments
+                zone=F;;
+        G)   ZONE=$((1+$ZONE)) 
+                zone=G;;
+        A)   ZONE=$((1+$ZONE))
+                zone=A;;
+        S)   ZONE=$((1+$ZONE))
+                zone=S;;
+        Q)   ZONE=$((1+$ZONE))
+                zone=Q;;
+        O)   ZONE=$((1+$ZONE))
+                zone=O;;
+        f)   if [[ "$OPTARG" != *.csv ]]; then #on regarde si on a bien un fichier .csv en entrée
+                    echo "mauvais format de fichier .csv requis en entrée">&2 >> erreur.txt
+                    usage
+                fi                              
+                tab=$OPTARG;;       #tab est le tableau d'entrée du programme
+        * )     echo "option n'existe pas ${args[$p]}">&2 >> erreur.txt
                 usage
-            fi                              
-            tab=$OPTARG;;       #tab est le tableau d'entrée du programme
-       --)  break;;
-    esac
+            ;;
+        --)  break;;
+        esac
+    fi
 done
+
+#il doit y avoir au moins 1 parametre
+
+if [[ $parametre = 0 ]]; then 
+    echo "un paramètre au moins doit ếtre spécifié">&2 >> erreur.txt
+    usage
+fi
 
 #on ne peut avoir que une seule Zone 
 
 if [[ $ZONE -gt 1 ]]; then 
     echo "il ne peut y avoir que 1 seule zone.">&2 >> erreur.txt
     usage
-fi
+fi            
 
-#test si un fichier d'entreé a bien été indiqué
+echo "préparation des fichiers"
 
-if [[ $tab != *.csv ]]; then 
-    echo "nécessite un fichier d'entrée">&2 >> erreur.txt
-    usage
-fi    
+#creation d'un fichier temporaire
+
+temp1=temp1.csv
+temp=temp.csv
 
 #Ce que fait le programme en fonction des arguments 
 
-if [[ $TEMPERATURE -eq 1 ]]; then #temperature mode 1
-    cut -d ";" -f1,11,12,13 $tab > $sortie  #trier en fonction du numeros de station (colonne 1)
-                                    
-                                    
-elif [[ $TEMPERATURE -eq 2 ]]; then #temperature mode 2
-    cut -d ";" -f1,2,11 $tab > $sortie    #trier en fonction de la date (colonne 2)
+if [ $TEMPERATURE -eq 1 ]; then #temperature mode 1
+    cut -d ";" -f1,11,12,13,15 $tab > $temp1 #A trier en fonction du numeros de station (colonne 1)                                                                 
+elif [ $TEMPERATURE -eq 2 ]; then #temperature mode 2
+    cut -d ";" -f2,1,11,15 $tab > $temp1    #A trier en fonction de la date (colonne 2)
+elif [ $TEMPERATURE -eq 3 ]; then #temperature mode 3
+    cut -d ";" -f2,1,11,15 $tab > $temp1    #A trier en fonction de la date (colonne 2) puis en fonction du numéros de la station (colonne 1)
 
-
-elif [[ $TEMPERATURE -eq 3 ]]; then #temperature mode 3
-    cut -d ";" -f1,2,11 $tab > $sortie    #trier en fonction de la date (colonne 2) puis en fonction du numéros de la station (colonne 1)
-
-
+    cut -d ";" -f1,2,11,15 $tab > $temp1
 fi
-if [[ $ALTITUDE -eq 1 ]]; then 
-    cut -d ";" -f1,14 $tab > $sortie    #trier en fonction de l'altitude par ordre décroissant (colonne 14)
-
-
+if [ $ALTITUDE -eq 1 ]; then 
+    cut -d ";" -f13,1,15 $tab > $temp1    #A trier en fonction de l'altitude par ordre décroissant (colonne 14)
 fi
-if [[ $HUMIDITE -eq 1 ]]; then 
-    cut -d ";" -f1,6 $tab > $sortie    #trier en fonction de l'humidité par ordre décroissant (colonne 6)
-
-
+if [ $HUMIDITE -eq 1 ]; then 
+    cut -d ";" -f6,1,15 $tab > $temp1    #A trier en fonction de l'humidité par ordre décroissant (colonne 6)
 fi
-if [[ $PRESSION -eq 1 ]]; then #pression mode 1
-    cut -d ";" -f1,7 $tab > $sortie  #trier en fonction du numeros de station (colonne 1)
-
-    
-elif [[ $PRESSION -eq 2 ]]; then #pression mode 2
-    cut -d ";" -f1,2,7 $tab > $sortie    #trier en fonction de la date (colonne 2)
-
-
-elif [[ $PRESSION -eq 3 ]]; then #pression mode 3
-    cut -d ";" -f1,2,7 $tab > $sortie    #trier en fonction de la date (colonne 2) puis en fonction du numéros de la station (colonne 1)
-
-
+if [ $PRESSION -eq 1 ]; then #pression mode 1
+    cut -d ";" -f1,7,15 $tab > $temp1  #A trier en fonction du numeros de station (colonne 1)  
+elif [ $PRESSION -eq 2 ]; then #pression mode 2
+    cut -d ";" -f15,2,1,7 $tab > $temp1    #A trier en fonction de la date (colonne 2)
+elif [ $PRESSION -eq 3 ]; then #pression mode 3
+    cut -d ";" -f15,2,1,7 $tab > $temp1    #A trier en fonction de la date (colonne 2) puis en fonction du numéros de la station (colonne 1)
+    cut -d ";" -f15,1,2,7 $tab > $temp1 
 fi
-if [[ $VENT -eq 1 ]]; then 
-    cut -d ";" -f1,4,5 $tab > $sortie   #trouver laxe x et y et faire une moyenne pour la direction trier en fonction de la station (colonne 1)
-fi
-if [[ $zone = F ]]; then 
-    echo "france"
-fi
-if [[ $zone = A ]]; then 
-    echo "Antilles"
-fi
-if [[ $zone = G ]]; then 
-    echo "Guyane"
-fi
-if [[ $zone = Q ]]; then 
-    echo "Antartique"
-fi
-if [[ $zone = S ]]; then 
-    echo "SP&M"
-fi
-if [[ $zone = O ]]; then 
-    echo "Ocean Indien"
+if [ $VENT -eq 1 ]; then 
+    cut -d ";" -f15,1,4,5 $tab > $temp1   #trouver laxe x et y et faire une moyenne pour la direction trier en fonction de la station (colonne 1)
 fi
 
+#creer un fichier propre
+
+tail +2 $temp1 > $temp
+rm $temp1
+    #entrer des espaces dans le fichier csv pour que le c comprenne les espaces
+
+    sed -i -e "s/;;/; ;/g" $temp # ";;;" => "; ;;"
+    sed -i -e "s/;;/; ;/g" $temp # ";;;" => "; ; ;"
+    sed -i -e "s/*;\n/; \n/g" $temp # "*;" => "*; "
+
+    #mettre que des chiffres dans la colonne dates 
+
+    sed -i -e "s/-//g" $temp
+    sed -i -e "s/://g" $temp
+    sed -i -e "s/+//g" $temp
+    sed -i -e "s/T//g" $temp
+
+    #Retirer les a et les b du code postal
+
+    sed -i -e "s/a//g" $temp
+    sed -i -e "s/b//g" $temp
+
+#initialisations de nouvelle variable 
+
+nblignes=$(cat $temp | wc -l)
+nbcolonnes=$(awk -F';' '(NR==1){print NF;}' $temp)
+
+
+#on teste si une variable zone est activer ( cela réduit la taille du fichier à trier ensuite )
+
+if [[ $ZONE == 1 ]]; then
+    if [[ $zone = F ]]; then        ## si option pour France + Corse (F)
+        echo "traitement de la zone FRANCE et CORSE :"
+        ./tri_lignes_ZONE -f $temp -o $sortie $nblignes $nbcolonnes F
+    elif [[ $zone = A ]]; then        ## si option pour Antilles (A)
+        ./tri_lignes_ZONE -f $temp -o $sortie $nblignes $nbcolonnes A
+    elif [[ $zone = G ]]; then        ## si option pour guyane (G)
+        ./tri_lignes_ZONE -f $temp -o $sortie $nblignes $nbcolonnes G
+    elif [[ $zone = S ]]; then        ## si option pour Saint-Pierre et Miquelon (S)
+        ./tri_lignes_ZONE -f $temp -o $sortie $nblignes $nbcolonnes S
+    elif [[ $zone = O ]]; then        ## si option pour Océan indien (O)
+        ./tri_lignes_ZONE -f $temp -o $sortie $nblignes $nbcolonnes O
+    else                              ## si option pour Antartique (Q)
+        ./tri_lignes_ZONE -f $temp -o $sortie $nblignes $nbcolonnes Q
+    fi
+    rm $temp
+else 
+    sortie=$temp
+fi
 
