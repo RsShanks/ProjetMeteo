@@ -141,7 +141,7 @@ parbre fabricationABR5(char *ligne, float b[],parbre a,int nbligne,char * nbcolo
     fgets(ligne, 1024, fp);
     char *val = strtok(ligne, ";");
     int c = 0;                                  //variable pour compter le nombre de colonnes
-    for (int i = 0 ; i < atoi(nbcolonne) ; i++) b[i] = 0;
+    for (int i = 0 ; i < nbcolonne ; i++) b[i] = 0;
     while (val != NULL)                         //pour initialiser l'arbre
     {         
         b[c]= strtof(val,NULL);                 //stockez la dans la matrice en transformant la valeur en float
@@ -158,7 +158,7 @@ parbre fabricationABR5(char *ligne, float b[],parbre a,int nbligne,char * nbcolo
         printf(" avancement : %d  %%\r", pourcent);                //permet dafficher les lignes pour voir lavancement du traitement
         char *val = strtok(ligne, ";");             //permet de stocker ce qui il y a entre les points virgule dans un char
         int c = 0;                                  //variable pour compter le nombre de colonnes
-        for (int i = 0 ; i < atoi(nbcolonne) ; i++) b[i] = 0;
+        for (int i = 0 ; i < nbcolonne; i++) b[i] = 0;
         while (val != NULL)                         //quand il arrive en fin de ligne
         {         
            b[c]= strtof(val,NULL);                 //stockez la dans la matrice en transformant la valeur en float
@@ -171,12 +171,12 @@ parbre fabricationABR5(char *ligne, float b[],parbre a,int nbligne,char * nbcolo
     return a;
   }
 
-parbre fabricationABR4(char *ligne, float b[],parbre a,int nbligne,char * nbcolonne,FILE * fp)
+parbre fabricationABR4(char *ligne, float b[],parbre a,int nbligne,int nbcolonne,FILE * fp)
   { int l =1;  
     fgets(ligne, 1024, fp);
     char *val = strtok(ligne, ";");
     int c = 0;                                  //variable pour compter le nombre de colonnes
-    for (int i = 0 ; i < atoi(nbcolonne) ; i++) b[i] = 0;
+    for (int i = 0 ; i < nbcolonne ; i++) b[i] = 0;
     while (val != NULL)                         //pour initialiser l'arbre
     {         
         b[c]= strtof(val,NULL);                 //stockez la dans la matrice en transformant la valeur en float
@@ -193,7 +193,7 @@ parbre fabricationABR4(char *ligne, float b[],parbre a,int nbligne,char * nbcolo
         printf(" avancement : %d  %%\r", pourcent);                //permet dafficher les lignes pour voir lavancement du traitement
         char *val = strtok(ligne, ";");             //permet de stocker ce qui il y a entre les points virgule dans un char
         int c = 0;                                  //variable pour compter le nombre de colonnes
-        for (int i = 0 ; i < atoi(nbcolonne) ; i++) b[i] = 0;
+        for (int i = 0 ; i < nbcolonne ; i++) b[i] = 0;
         while (val != NULL)                         //quand il arrive en fin de ligne
         {         
            b[c]= strtof(val,NULL);                 //stockez la dans la matrice en transformant la valeur en float
@@ -207,7 +207,7 @@ parbre fabricationABR4(char *ligne, float b[],parbre a,int nbligne,char * nbcolo
     return a;
   }
 
-parbre fabricationABR3(char *ligne, float b[],parbre a,int nbligne,char * nbcolonne,FILE * fp)
+parbre fabricationABR3(char *ligne, float b[],parbre a,int nbligne,int nbcolonne,FILE * fp)
   { int l =1;  
     fgets(ligne, 1024, fp);
     char *val = strtok(ligne, ";");
@@ -244,27 +244,73 @@ parbre fabricationABR3(char *ligne, float b[],parbre a,int nbligne,char * nbcolo
   }
 int main(int argc,char *argv[])
 {   
-    printf("%d", atoi(argv[6]));
-    FILE *fp = fopen(argv[2], "rt");                                   // Ouvre le fichier CSV en lecture
-    printf("entre : %s\n",argv[2]);
-    FILE * propre = fopen( argv[4] , "w+"); 
-    printf("sortie : %s\n",argv[4]);                                   // Ouvre le fichier CSV en lecture
-    if (fp == NULL || propre == NULL )                                 // Vérifiez que le fichier a été ouvert avec succès
+
+    //test des arguments
+    int j = 0;   // compteur pour le getopt  
+    char* entrée;
+    char* sortie;
+    int nbligne = 0;
+    int nbcolonne = 0;
+    int nbarg = 0;
+    while ((j = getopt(argc, argv, "f:o:c:l:")) != -1) {
+        switch (j) {
+            case 'f':
+                entrée = optarg;
+                nbarg += 1;
+                break;
+            case 'o':
+                sortie = optarg;
+                nbarg += 1;
+                break;
+            case 'c':
+                nbcolonne = atoi(optarg);
+                if (nbcolonne <= 0)
+                {
+                    puts("nombre de colonne invalide");
+                    exit(1);
+                }
+                nbarg += 1;
+                break;
+            case 'l':
+                nbligne = atoi(optarg);
+                if (nbligne <= 0)
+                {
+                    puts("nombre de ligne invalide");
+                    exit(1);
+                }
+                nbarg += 1;
+                break;
+            default:
+                puts("mauvaise option");
+                exit(1);
+        }
+    }
+    if (nbarg != 4)
     {
-        printf("Erreur lors de l'ouverture du fichier\n");
-        return 4;
+        puts("nombre d'option invalide");
+        exit(1);
+    }
+    FILE *fp = fopen( entrée, "rt");               // Ouvre le fichier CSV en lecture
+    printf("entrée : %s\n",entrée);
+    FILE * propre = fopen( sortie , "w+"); 
+    printf("sortie : %s\n",sortie );                    // Ouvre le fichier CSV en lecture
+    if (fp == NULL )                                 // Vérifiez que le fichier a été ouvert avec succès
+    {
+        printf("Erreur lors de l'ouverture du fichier d'entrée\n");
+        return 2;
+    }
+    if (propre == NULL )                                 // Vérifiez que le fichier a été ouvert avec succès
+    {
+        printf("Erreur lors de l'ouverture du fichier de sortie\n");
+        return 3;
     }
     parbre a;
-    a = creationarbre5(0,0,0,0,0);
-    float b[atoi(argv[6])-1];   //Float car les valeurs sont ingerables en long long    
+    a = creationarbre4(0,0,0,0);
+    float b[nbcolonne];   //Float car les valeurs sont ingerables en long long    
     if (b == NULL ) return 4;
     char ligne[1024];   
-    
-    if (atoi(argv[6]) == 5)   a = fabricationABR5(ligne,b,a,atoi(argv[5]),argv[6],fp);
-    if (atoi(argv[6]) == 4)   a = fabricationABR4(ligne,b,a,atoi(argv[5]),argv[6],fp);
-    if (atoi(argv[6]) == 3)   a = fabricationABR3(ligne,b,a,atoi(argv[5]),argv[6],fp);
-    puts ("fini");
-    prefixefichier(a,propre);
+    a = fabricationABR3(ligne,b,a,nbligne,nbcolonne,fp);
+    puts ("\nfini");
     fclose(propre);
     fclose(fp);
     return 0;
