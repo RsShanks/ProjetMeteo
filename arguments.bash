@@ -1,9 +1,5 @@
 #!/bin/bash
 
-#on elimine les fichiers residuels du dernier lancement
-
-#rm Paramètre/*
-
 #on élimine notre fichier erreur en début de programme
 
 if [ -e erreur.txt ]; then
@@ -39,7 +35,6 @@ fi
 
 #initialisations des variables 
 
-sortie=out.csv
 ZONE=0
 TEMPERATURE=0
 PRESSION=0
@@ -50,7 +45,6 @@ parametre=0             #le nombre de parametre
 mode_tri="AVL"
 p=0
 parametre1=0
-temp=temp
 
 #tant que l'on a pas fait passer tous les arguments dans le case on boucle jusqu'au '--' qui est le dernier élément
 
