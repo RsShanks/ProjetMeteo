@@ -335,24 +335,20 @@ parbre insererm2(parbre a,double b1,double b2,double b3,double b4,double b5,doub
     return a;
 }
 
-parbre inserert1(parbre a,double b1,double b2,double b3,double b4,double b5,double b6,int* h)
+parbre insererw(parbre a,double b1,double b2,double b3,double b4,double b5,double b6,int* h)
 {
 
         if (a == NULL) 
         {   return creationarbre3(b1,b2,b3,b4,b5,b6);
             *h=1;   }
         else if (b1 < a->col1) 
-        {   a->fg  = inserert1(a->fg,b1,b2,b3,b4,b5,b6,h);
+        {   a->fg  = insererw(a->fg,b1,b2,b3,b4,b5,b6,h);
             *h=-*h; }
-        else if (b1 > a->col1) a->fd = inserert1(a->fd,b1,b2,b3,b4,b5,b6,h);
+        else if (b1 > a->col1) a->fd = insererw(a->fd,b1,b2,b3,b4,b5,b6,h);
         else 
         {
             if (b2 != 0)    a->col2=(a->col2+b2)/2;
-            if (b3 != 0)    a->col3=(a->col3+b3)/2;
-            else if (a->col3 == 0)  a->col3 = b2;
-            else if (b2 < a->col3 ) a->col3=b2;
-            if (b4 > a->col4) a->col4 = b4;
-            else if (b2 > a->col4) a->col4=b2;           
+            if (b3 != 0)    a->col3=(a->col3+b3)/2;      
             *h=0;
             return a;
         }
@@ -378,7 +374,6 @@ parbre inserert1(parbre a,double b1,double b2,double b3,double b4,double b5,doub
     }
     return a;
 }
-
 
 parbre fabricationAVLt1(char *ligne, double b[],parbre a,int nbligne,int nbcolonne,FILE * fp,FILE * propre)
   { 
@@ -618,7 +613,6 @@ parbre fabricationAVLw(char *ligne, double b[],parbre a,int nbligne,int nbcolonn
     return a;
   }
 
-
 int main(int argc,char* argv[])
 {
 
@@ -735,6 +729,7 @@ int main(int argc,char* argv[])
     else if (arg == 12 || arg == 22 ) a = fabricationAVLt2(ligne,b,a,nbligne,nbcolonne,fp,propre); 
     else if ( arg == 5 ) a = fabricationAVLm(ligne,b,a,nbligne,nbcolonne,fp,propre);
     else if ( arg == 51 ) a = fabricationAVLm2(ligne,b,a,nbligne,nbcolonne,fp,propre);
+    else if ( arg == 4 ) a = fabricationAVLw(ligne,b,a,nbligne,nbcolonne,fp,propre);
     puts ("\n");
     fclose(propre);
     fclose(fp);
