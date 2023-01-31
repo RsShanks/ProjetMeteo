@@ -173,7 +173,7 @@ echo "préparation des fichiers"
         parametre=$(($parametre-1))
         parametre1=$((1+$parametre1))                                                           #A trier en fonction du numeros de station (colonne 1)                                                                 
     elif [ $TEMPERATURE -eq 2 ]; then                                                                      #temperature mode 2            
-        awk -F';' 'BEGIN {OFS=";"} { print $2,$1,$11,$10 }' < $tab > temp$parametre.csv      #A trier en fonction de la date (colonne 2)
+        awk -F';' 'BEGIN {OFS=";"} { print $2,$11,$10 }' < $tab > temp$parametre.csv      #A trier en fonction de la date (colonne 2)
         parametre=$(($parametre-1))
         parametre1=$(($parametre1+1))
     elif [ $TEMPERATURE -eq 3 ]; then                                                          #temperature mode 3
@@ -196,11 +196,11 @@ echo "préparation des fichiers"
         parametre=$(($parametre-1))
         parametre1=$(( 1 + $parametre1)) 
     elif [ $PRESSION -eq 2 ]; then                                                              #pression mode 2
-        awk -F';' 'BEGIN {OFS=";"} { print $2,$1,$7,10 }' < $tab > temp$parametre.csv            #A trier en fonction de la date (colonne 2)
+        awk -F';' 'BEGIN {OFS=";"} { print $2,$7,$10 }' < $tab > temp$parametre.csv            #A trier en fonction de la date (colonne 2)
         parametre=$(($parametre-1))
         parametre1=$(( 1 + $parametre1))
     elif [ $PRESSION -eq 3 ]; then                                                              #pression mode 3
-        awk -F';' 'BEGIN {OFS=";"} { print $2,$1,$7,10 }' < $tab > temp$parametre.csv                                           #A trier en fonction de la date (colonne 2) puis en fonction du numéros de la station (colonne 1)
+        awk -F';' 'BEGIN {OFS=";"} { print $2,$1,$7,$10 }' < $tab > temp$parametre.csv                                           #A trier en fonction de la date (colonne 2) puis en fonction du numéros de la station (colonne 1)
         parametre=$(($parametre-1))
         parametre1=$(( 1 + $parametre1))
     fi
@@ -247,7 +247,7 @@ for f in $fichier ; do                              #creer un fichier propre
         cut -d";" -f1 $f > tmp.csv
         sed -i -e "s/-//g" tmp.csv
         paste -d ";" $f tmp.csv > output.csv
-        awk -F';' 'BEGIN {OFS=";"} { print $6,$3,$4,$5 }' output.csv > $f
+        awk -F';' 'BEGIN {OFS=";"} { print $5,$2,$3,$4 }' output.csv > $f
         rm output.csv
         rm tmp.csv
     fi
@@ -282,12 +282,12 @@ if [[ $ZONE == 1 ]]; then
         elif [[ $zone = G ]]; then        ## si option pour guyane (G)
             echo "traitement de la zone GUYANE : "
             ./tri -f $f -o REGION_$parametre1.csv -l $nblignes -c $nbcolonnes -z G
-            #rm $f
+            rm $f
             parametre1=$(($parametre1-1))
        
         elif [[ $zone = S ]]; then        ## si option pour Saint-Pierre et Miquelon (S)
             echo "traitement de la zone SAINT-PIERRE ET MIQUELON :"
-            grep -E "46.766333,-56.179167" temp$parametre1.csv > REGION_$parametre1.csv
+            grep -E "46.766333" temp$parametre1.csv > REGION_$parametre1.csv
             rm temp$parametre1.csv
             parametre1=$(($parametre1-1))
        

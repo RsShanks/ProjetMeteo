@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 
-void fabrication(char *ligne, float b[],int nbligne,int nbcolonne,FILE * fp,FILE * propre,int X_max,int X_min,int Y_max,int Y_min)
+void fabrication(char *ligne, double b[],int nbligne,int nbcolonne,FILE * fp,FILE * propre,int X_max,int X_min,int Y_max,int Y_min)
   { 
     int l =1;  
     fgets(ligne, 1024, fp);
@@ -13,7 +13,7 @@ void fabrication(char *ligne, float b[],int nbligne,int nbcolonne,FILE * fp,FILE
     int c = 0;                                  //variable pour compter le nombre de colonnes
     while (val != NULL)                         //pour initialiser l'arbre
     {         
-        b[c]= strtof(val,NULL);                 //stockez la dans la matrice en transformant la valeur en float
+        b[c]= strtod(val,NULL);                 //stockez la dans la matrice en transformant la valeur en double
         val = strtok(NULL, ";");                //Passez à la prochaine valeur
         c++;
     }
@@ -26,7 +26,7 @@ void fabrication(char *ligne, float b[],int nbligne,int nbcolonne,FILE * fp,FILE
         int c = 0;                                  //variable pour compter le nombre de colonnes
         while (val != NULL)                         //quand il arrive en fin de ligne
         {         
-            b[c]= strtof(val,NULL);                 //stockez la dans un tableau en transformant la valeur en float
+            b[c]= strtod(val,NULL);                 //stockez la dans un tableau en transformant la valeur en double
             val = strtok(NULL, ";");                //Passez à la prochaine valeur
             c++;
         }
@@ -36,7 +36,7 @@ void fabrication(char *ligne, float b[],int nbligne,int nbcolonne,FILE * fp,FILE
             {
                 fprintf(propre,"%.0f;",b[0]);  
                 for (int i = 1; i < nbcolonne-1; i++) fprintf(propre,"%f;",b[i]);
-                fprintf(propre,"%f\n", b[nbcolonne]);
+                fprintf(propre,"%f\n", b[nbcolonne-1]);
             }
         }
     }
@@ -114,13 +114,13 @@ int main(int argc,char* argv[])
     printf("%s",zone);
     char ligne[1024];   
     int l =1;                             // variable pour compter le nombre de lignes
-    float b[nbcolonne];
+    double b[nbcolonne];
     if ( strcmp("F",zone) == 0 )               // on entre chaque valeur de zone 
     {
         X_max = 10;
         X_min = -6;
-        Y_max = 40;
-        Y_min = 50;
+        Y_max = 52;
+        Y_min = 40;
     }
     else if ( strcmp("A",zone) == 0 )
     {
@@ -143,6 +143,7 @@ int main(int argc,char* argv[])
         Y_max = 10;
         Y_min = -54;
     }
+    else puts("mauvais arguments de zones");
     fabrication(ligne,b,nbligne,nbcolonne,fp,propre,X_max,X_min,Y_max,Y_min);
     fclose(fp);
     fclose(propre);

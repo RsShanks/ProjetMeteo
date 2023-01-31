@@ -220,7 +220,7 @@ parbre inserert3(parbre a,double b1,double b2,double b3,double b4,double b5,doub
         else 
         {
             if (a->doublon==NULL) a->doublon = creationarbre3(b1,b2,b3,b4,b5,b6);
-                else 
+            else 
                 {
                     parbre b = creationarbre3(b1,b2,b3,b4,b5,b6);
                     b->doublon = a->doublon;
@@ -349,6 +349,90 @@ parbre insererw(parbre a,double b1,double b2,double b3,double b4,double b5,doubl
         {
             if (b2 != 0)    a->col2=(a->col2+b2)/2;
             if (b3 != 0)    a->col3=(a->col3+b3)/2;      
+            *h=0;
+            return a;
+        }
+    if (*h != 0)
+    {
+        a->equilibre = a->equilibre+*h;  
+        if (a->equilibre > 1 && b1 < a->fg->col1)
+            return Rotationdroite(a);
+        else if (a->equilibre < -1 && b1 > a->fd->col1)
+            return Rotationgauche(a);
+        else if (a->equilibre > 1 && b1 > a->fg->col1)
+        {
+            a->fg =  Rotationgauche(a->fg);
+            return Rotationdroite(a);
+        }
+        else if (a->equilibre < -1 && b1 < a->fd->col1)
+        {
+            a->fd = Rotationdroite(a->fd);
+            return Rotationgauche(a);
+        }
+        if (a->equilibre == 0) *h = 0;
+        else *h =1; 
+    }
+    return a;
+}
+
+parbre insererp1(parbre a,double b1,double b2,double b3,double b4,double b5,double b6,int* h)
+{
+
+        if (a == NULL) 
+        {   return creationarbre3(b1,b2,b3,b4,b5,b6);
+            *h=1;   }
+        else if (b1 < a->col1) 
+        {   a->fg  = inserert1(a->fg,b1,b2,b3,b4,b5,b6,h);
+            *h=-*h; }
+        else if (b1 > a->col1) a->fd = inserert1(a->fd,b1,b2,b3,b4,b5,b6,h);
+        else 
+        {
+            if (b2 != 0)    a->col2=(a->col2+b2)/2;
+            if ((b2 < a->col3 && b2 != 0) || a->col3 == 0) a->col3 = b2;
+            if ((b2 < a->col4 && b2 != 0) || a->col4 == 0) a->col4 = b2;         
+            *h=0;
+            return a;
+        }
+    if (*h != 0)
+    {
+        a->equilibre = a->equilibre+*h;  
+        if (a->equilibre > 1 && b1 < a->fg->col1)
+            return Rotationdroite(a);
+        else if (a->equilibre < -1 && b1 > a->fd->col1)
+            return Rotationgauche(a);
+        else if (a->equilibre > 1 && b1 > a->fg->col1)
+        {
+            a->fg =  Rotationgauche(a->fg);
+            return Rotationdroite(a);
+        }
+        else if (a->equilibre < -1 && b1 < a->fd->col1)
+        {
+            a->fd = Rotationdroite(a->fd);
+            return Rotationgauche(a);
+        }
+        if (a->equilibre == 0) *h = 0;
+        else *h =1; 
+    }
+    return a;
+}
+
+parbre insererh(parbre a,double b1,double b2,double b3,double b4,int* h)
+{
+
+        if (a == NULL) 
+        {   return creationarbre3(b1,b2,b3,b4,0,0);
+            *h=1;   }
+        else if (b1 < a->col1) 
+        {   a->fg  = insererh(a->fg,b1,b2,b3,b4,h);
+            *h=-*h; }
+        else if (b1 > a->col1) a->fd = insererh(a->fd,b1,b2,b3,b4,h);
+        else 
+        {    
+            if (b2 != a->col2 ) 
+            {
+                if (a->doublon==NULL) a->doublon = creationarbre3(b1,b2,b3,b4,0,0);
+                else insererh(a->doublon,b1,b2,b3,b4,h);
+            }
             *h=0;
             return a;
         }
@@ -613,6 +697,74 @@ parbre fabricationAVLw(char *ligne, double b[],parbre a,int nbligne,int nbcolonn
     return a;
   }
 
+parbre fabricationAVLp1(char *ligne, double b[],parbre a,int nbligne,int nbcolonne,FILE * fp,FILE * propre)
+  { 
+    int h=0;
+    int l =1;  
+    fgets(ligne, 1024, fp);
+    char *val = strtok(ligne, ";");
+    int c = 0;                                  //variable pour compter le nombre de colonnes
+    while (val != NULL)                         //pour initialiser l'arbre
+    {         
+        b[c]= strtod(val,NULL);                 //stockez la dans la matrice en transformant la valeur en double
+        val = strtok(NULL, ";");                //Passez à la prochaine valeur
+        c++;
+    }
+    l++;
+    a = creationarbre3(b[0],b[1],0,0,b[2],b[3]);
+    while (fgets(ligne, 1024, fp) != NULL)
+    {
+        int pourcent = (l*100.0)/nbligne;
+        printf("avancement : %d  %%\r", pourcent);                //permet dafficher les lignes pour voir lavancement du traitement
+        char *val = strtok(ligne, ";");             //permet de stocker ce qui il y a entre les points virgule dans un char
+        int c = 0;                                  //variable pour compter le nombre de colonnes
+        while (val != NULL)                         //quand il arrive en fin de ligne
+        {         
+        b[c]= strtod(val,NULL);                 //stockez la dans un tableau en transformant la valeur en double
+        val = strtok(NULL, ";");                //Passez à la prochaine valeur
+        c++;
+        }
+        l++;
+        a = insererp1(a,b[0],b[1],0,0,b[2],b[3],&h);
+    }
+    prefixefichier(a,propre);
+    return a;
+  }
+
+parbre fabricationAVLh(char *ligne, double b[],parbre a,int nbligne,int nbcolonne,FILE * fp,FILE * propre)
+  { 
+    int h=0;
+    int l =1;  
+    fgets(ligne, 1024, fp);
+    char *val = strtok(ligne, ";");
+    int c = 0;                                  //variable pour compter le nombre de colonnes
+    while (val != NULL)                         //pour initialiser l'arbre
+    {         
+        b[c]= strtod(val,NULL);                 //stockez la dans la matrice en transformant la valeur en double
+        val = strtok(NULL, ";");                //Passez à la prochaine valeur
+        c++;
+    }
+    l++;
+    a = creationarbre3(b[0],b[1],b[2],b[3],0,0);
+    while (fgets(ligne, 1024, fp) != NULL)
+    {
+        int pourcent = (l*100.0)/nbligne;
+        printf("avancement : %d  %%\r", pourcent);                //permet dafficher les lignes pour voir lavancement du traitement
+        char *val = strtok(ligne, ";");             //permet de stocker ce qui il y a entre les points virgule dans un char
+        int c = 0;                                  //variable pour compter le nombre de colonnes
+        while (val != NULL)                         //quand il arrive en fin de ligne
+        {         
+        b[c]= strtod(val,NULL);                 //stockez la dans un tableau en transformant la valeur en double
+        val = strtok(NULL, ";");                //Passez à la prochaine valeur
+        c++;
+        }
+        l++;
+        a = insererh(a,b[0],b[1],b[2],b[3],&h);
+    }
+    prefixefichierdecroissant(a,propre);
+    return a;
+  }
+
 int main(int argc,char* argv[])
 {
 
@@ -670,6 +822,9 @@ int main(int argc,char* argv[])
                 nbarg+=1;
                 break;
             case 'h':
+                arg = 3;
+                nbarg+=1;
+                break;
             case 'm':
                 if (atoi(optarg) == 0) arg = 5;
                 else if (atoi(optarg)==1) arg = 51;
@@ -723,13 +878,15 @@ int main(int argc,char* argv[])
     if (b == NULL ) return 4;
     char ligne[1024];   
 
-    if (arg==11 || arg == 21 )a = fabricationAVLt1(ligne,b,a,nbligne,nbcolonne,fp,propre);          //mode : t1 p1
+    if (arg==11)a = fabricationAVLt1(ligne,b,a,nbligne,nbcolonne,fp,propre);          //mode : t1 p1
     else if (arg==13 || arg == 23 )a = fabricationAVLt3(ligne,b,a,nbligne,nbcolonne,fp,propre);     //mode : t3 p3
     else if ( arg == 10 ) a = fabricationAVLt32(ligne,b,a,nbligne,nbcolonne,fp,propre);             //mode : 2nd tri du t3 p3 et t2 p2
     else if (arg == 12 || arg == 22 ) a = fabricationAVLt2(ligne,b,a,nbligne,nbcolonne,fp,propre); 
     else if ( arg == 5 ) a = fabricationAVLm(ligne,b,a,nbligne,nbcolonne,fp,propre);
     else if ( arg == 51 ) a = fabricationAVLm2(ligne,b,a,nbligne,nbcolonne,fp,propre);
     else if ( arg == 4 ) a = fabricationAVLw(ligne,b,a,nbligne,nbcolonne,fp,propre);
+    else if (arg == 21) a = fabricationAVLp1(ligne,b,a,nbligne,nbcolonne,fp,propre);
+    else if (arg == 3) a = fabricationAVLh(ligne,b,a,nbligne,nbcolonne,fp,propre);
     puts ("\n");
     fclose(propre);
     fclose(fp);
