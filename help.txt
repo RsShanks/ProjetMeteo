@@ -1,4 +1,4 @@
-./script_meteo [parametre] [Zone] -f [fichier.csv] -o [fichier de sortie.csv]
+./script_meteo [parametre] [Zone] -f [fichier.csv] 
 
 Autant de parametre que vous voulez.
       : [ -t<1,2,3> ] temperature
