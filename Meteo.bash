@@ -44,17 +44,16 @@ usage()
 
 Compilation()
 {
-        cd Fichier_C
-        if [ ! -f Meteo ];then
+        if [ ! -f Fichier_C/Meteo ];then
             make all >&2 >> erreur.txt
             if [[ $? == 0 ]];then
                 rm erreur.txt
             else 
                 echo "erreur lors de la compilation ">&2 >> erreur.txt
+                mv erreur.txt ../
                 usage
             fi
         fi
-        cd ..
 }
 
 traitement_erreur_C()
@@ -354,7 +353,7 @@ for fic in $fichier ; do
         mkdir resultat_tri
     fi
     ./Fichier_C/Meteo -f REGION_${tableau_arg[$i]}.csv -o resultat_tri/OK_tri_${tableau_arg[$i]}.csv -l $nblignes -c $nbcolonnes -${tableau_arg[$i]} -k $mode_tri -r $reverse
-    rm REGION_${tableau_arg[$i]}.csv
+   # rm REGION_${tableau_arg[$i]}.csv
     traitement_erreur_C
     nblignes=$(cat resultat_tri/OK_tri_${tableau_arg[$i]}.csv | wc -l)
     nbcolonnes=$(awk -F';' '(NR==1){print NF;}' resultat_tri/OK_tri_${tableau_arg[$i]}.csv)
@@ -445,7 +444,7 @@ EOF
     set xlabel 'jours'
     set ylabel 'pression'
     NO_ANIMATION = 1
-    plot "resultat_tri/OK_tri_${tableau_arg[$p]}.csv" u (column(1)/1000000):2
+    plot "resultat_tri/OK_tri_${tableau_arg[$p]}.csv" using 0:2:xticlabels(1)
     quit
 EOF
     fi

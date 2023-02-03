@@ -106,7 +106,7 @@ parbre inserert2(parbre a,double b1,double b2,double b3,double b4,int* h)
         else if (b1 > a->col1) a->fd = inserert2(a->fd,b1,b2,b3,b4,h);
         else 
         {
-            a->col2=(a->col2+b2)/2;
+            if (b2 != 0) a->col2=(a->col2+b2)/2;
             *h=0;
             return a;
         }

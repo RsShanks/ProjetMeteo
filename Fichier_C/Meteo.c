@@ -4,9 +4,11 @@
 #include <math.h>
 #include <unistd.h>
 
-#include "AVL.h"
+#include "TAB.h"
 #include "ABR.h"
 #include "Filtre_ZONE.h"
+#include "AVL.h"
+
 
 int main(int argc,char* argv[])
 {
@@ -105,6 +107,7 @@ int main(int argc,char* argv[])
                 exit(1);
         }
     }
+    puts ("ici");
     if (nbarg != 6)     exit(1);
     FILE *fp = fopen( entree, "rt");               // Ouvre le fichier CSV en lecture
     printf("entree : %s\n",entree);
@@ -153,7 +156,23 @@ int main(int argc,char* argv[])
         else if (arg == 21) a = fabricationABRp1(ligne,b,a,nbligne,nbcolonne,fp,propre,reverse);
         else if (arg == 3) a = fabricationABRh(ligne,b,a,nbligne,nbcolonne,fp,propre,reverse);
         free(a);}
-
+    else if ( tri == 3)
+    {
+        parbre a;
+        a = creationarbre(0,0,0,0,0,0);
+        double b[nbcolonne];   //double car les valeurs sont ingerables en long long    
+        if (b == NULL ) return 4;
+        char ligne[1024];  
+        if (arg==11)a = fabricationTABt1(ligne,b,a,nbligne,nbcolonne,fp,propre);          //mode : t1 p1
+        /*else if (arg==13 || arg == 23 )a = fabricationTABt3(ligne,b,a,nbligne,nbcolonne,fp,propre);     //mode : t3 p3
+        else if ( arg == 10 ) a = fabricationTABt32(ligne,b,a,nbligne,nbcolonne,fp,propre,reverse);             //mode : 2nd tri du t3 p3 et t2 p2
+        else if (arg == 12 || arg == 22 ) a = fabricationTABt2(ligne,b,a,nbligne,nbcolonne,fp,propre); 
+        else if ( arg == 5 ) a = fabricationTABm(ligne,b,a,nbligne,nbcolonne,fp,propre);
+        else if ( arg == 51 ) a = fabricationTABm2(ligne,b,a,nbligne,nbcolonne,fp,propre);
+        else if ( arg == 4 ) a = fabricationTABw(ligne,b,a,nbligne,nbcolonne,fp,propre);
+        else if (arg == 21) a = fabricationTABp1(ligne,b,a,nbligne,nbcolonne,fp,propre);
+        else if (arg == 3) a = fabricationTABh(ligne,b,a,nbligne,nbcolonne,fp,propre);*/
+        free(a);}
     else if (tri == 4)
         {int X_max;
         int X_min;

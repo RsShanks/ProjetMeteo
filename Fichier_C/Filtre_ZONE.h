@@ -1,5 +1,5 @@
-#ifndef Filtre_ZONE_h
-#define Filtre_ZONE_h
+#ifndef FILTRE_ZONE_h
+#define FILTRE_ZONE_h
 
 #include <stdio.h>
 #include <stdlib.h>
