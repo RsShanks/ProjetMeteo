@@ -8,7 +8,7 @@ Déposez votre fichier .csv dans le repertoire Projet-Meteo.
 
 La commande d'éxecution du programme :
 
-./Meteo -f [fichier.csv] [option] [zone]
+    Commande : ./Meteo -f [fichier.csv] [option] [zone]
 
 le fichier doit obligatoirement être un .csv.
 
@@ -66,9 +66,7 @@ Filtre_ZONE.C :
 Pour l'utilser il faut posséder un csv propre c'est à dire qu'il possède que des nombres et des points virgules, aucun autre caractere sinon capable de provoquer une erreur. Pour récupérer un fichier utilisable par le programme vous pouvez retirer les lignes correspondantes à : rm temp${tableau_arg[$parametre]}.csv (la ligne dépend de l'option géographique passée en argument (ligne : [299;332])).
 Le filtrage s'effectuera correctement si les 2 dernières colonnes sont les coordonnées. 
 
-    Commande : 
-
-./Fichier_C/Meteo -f [Fichier.csv] -o [Fichier_de_sortie.csv] -l [nblignes] -c [nbcolonnes] -z [zone] -k 4
+    Commande : ./Fichier_C/Meteo -f [Fichier.csv] -o [Fichier_de_sortie.csv] -l [nblignes] -c [nbcolonnes] -z [zone] -k 4
 
 AVL.c ABR.c : 
 
@@ -76,9 +74,7 @@ Pour l'utilser il faut posséder un csv propre c'est à dire qu'il possède que 
 Le tri s'effectuera selon des caractères très spéciaux aux options demandées sur la 1ère colonne et peut altérer les autres colonnes.
 Pour récuperer un fichier utilisable pour une option vous pouvez enlever la ligne 360 de Meteo.bash .
 
-    Commande : 
-
-./Fichier_C/Meteo -f [Fichier.csv] -o [Fichier_de_sortie.csv] -l [nblignes] -c [nbcolonnes] -[option] -k [mode_de_tri] -r [inverse]
+    Commande : ./Fichier_C/Meteo -f [Fichier.csv] -o [Fichier_de_sortie.csv] -l [nblignes] -c [nbcolonnes] -[option] -k [mode_de_tri] -r [inverse]
 
 mode_de_tri : 1 pour AVL , 2 pour ABR 
 inverse : 0 tri normal (voir au dessus) , 1 inversion des tris 
