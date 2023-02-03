@@ -1,0 +1,30 @@
+./Meteo [parametre] [Zone] -f [fichier.csv] 
+
+Autant de parametre que vous voulez.
+      : [ -t<1,2,3> ] temperature (tri croissant)
+        [ -m ] humidité (tri décroissant)
+        [ -h ] altitude (tri décroissant)
+        [ -p<1,2,3> ] pression (tri croissant)
+        [ -w ] vent (tri croissant)
+
+1 : produit en sortie les températures (ou pressions) minimales, maximales et moyennes par station dans l’ordre
+croissant du numéro de station.
+2 : produit en sortie les températures (ou pressions) moyennes par date/heure, triées dans l’ordre chronologique.
+La moyenne se fait sur toutes les stations.
+3 : produit en sortie les températures (ou pressions) par date/heure par station. Elles seront triées d’abord par ordre
+chronologique, puis par ordre croissant de l’identifiant de lastation
+                  
+0 ou 1 Zone.
+      : [ -F (France) ]
+        [ -G (Guyane) ]
+        [ -A (Antilles) ]
+        [ -S (Saint-Pierre et Miquelon) ]
+        [ -Q (Antartiques et Terres Australes) ]
+        [ -O (Océan Indien) ]
+
+[ -r ] inverse , permet d'inverser les tris (croissant -> décroissant , décroissant -> croissant) 
+
+Plusieurs modes de tri : 
+      : [ --avl ] tri avl (mode par défaut)
+        [ --abr ] tri abr
+        [ --tab ] tri tab (liste chainée) (non implémenté)
